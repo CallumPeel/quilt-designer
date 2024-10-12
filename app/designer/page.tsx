@@ -41,7 +41,7 @@ const Designer: React.FC = () => {
                 <main className="main" style={styles.main}>
                     <h1 style={styles.h1}>Welcome to the Quilt Pattern Calculator</h1>
                     <p style={styles.p}>
-                        This tool allows you to easily calculate fabric needs and visualize a "Log Cabin" quilting pattern.
+                        This tool allows you to easily calculate fabric needs and visualize a Log Cabin quilting pattern.
                         Enter your preferences, and the calculator will provide you with both a diagram and detailed fabric requirements.
                     </p>
                 </main>
