@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import Head from 'next/head';
+import React, { useState } from 'react';
 
 const borderStyles = ['Flying Geese', 'Herringbone', 'Delectable Mountain', 'Pinwheels', 'Tipped Bricks', 'Crossovers'];
 
