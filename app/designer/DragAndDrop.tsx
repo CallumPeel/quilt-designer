@@ -70,8 +70,8 @@ const DragAndDrop = () => {
         drag3: null,
     });
 
-    // Track which drop areas are already filled
-    const filledDropBoxes = Object.values(droppedItems);
+    // Sidebar state for draggable items
+    const [draggables, setDraggables] = useState<string[]>(["drag1", "drag2", "drag3"]);
 
     const [overId, setOverId] = useState<string | null>(null);
 
@@ -79,12 +79,22 @@ const DragAndDrop = () => {
         const { id } = event.active; // The ID of the dragged item
         const overId = event.over?.id; // The ID of the droppable area
 
-        if (overId && !filledDropBoxes.includes(overId)) {
-            // Check if the drop area is not already filled
+        if (overId) {
             setDroppedItems((prevItems) => ({
                 ...prevItems,
                 [id]: overId, // Update which dropbox the item is in
             }));
+
+            // Only add a new draggable box if the item was initially in the sidebar
+            if (draggables.includes(id)) {
+                setDraggables((prevDraggables) => prevDraggables.filter((draggableId) => draggableId !== id));
+                const newId = `drag${Object.keys(droppedItems).length + 1}`;
+                setDraggables((prevDraggables) => [...prevDraggables, newId]);
+                setDroppedItems((prevItems) => ({
+                    ...prevItems,
+                    [newId]: null, // Add new draggable to the sidebar
+                }));
+            }
         }
     };
 
@@ -108,9 +118,9 @@ const DragAndDrop = () => {
                     borderRadius: "0px 5px 5px 0px"
                 }}>
                     {/* Draggable Items */}
-                    {!droppedItems.drag1 && <DraggableItem id="drag1" name="squarey1" />}
-                    {!droppedItems.drag2 && <DraggableItem id="drag2" name="squarey2" />}
-                    {!droppedItems.drag3 && <DraggableItem id="drag3" name="squarey3" />}
+                    {draggables.map((dragId) => (
+                        !droppedItems[dragId] && <DraggableItem key={dragId} id={dragId} name={dragId} />
+                    ))}
                 </div>
 
                 {/* Main content area */}
@@ -123,14 +133,14 @@ const DragAndDrop = () => {
                     <div style={{
                         display: "grid",
                         gridTemplateColumns: `repeat(${numCols}, 1fr)`,
-                        gap: "10px",
+                        gap: "1px",
                     }}>
                         {/* Droppable Areas in a Grid */}
                         {dropZones.map((dropId) => (
                             <DroppableArea key={dropId} id={dropId} isOver={overId === dropId}>
-                                {droppedItems.drag1 === dropId && <DraggableItem id="drag1" name="squarey1" />}
-                                {droppedItems.drag2 === dropId && <DraggableItem id="drag2" name="squarey2" />}
-                                {droppedItems.drag3 === dropId && <DraggableItem id="drag3" name="squarey3" />}
+                                {Object.keys(droppedItems).map((dragId) => (
+                                    droppedItems[dragId] === dropId && <DraggableItem key={dragId} id={dragId} name={dragId} />
+                                ))}
                             </DroppableArea>
                         ))}
                     </div>
