@@ -8,7 +8,6 @@ interface DraggableProps {
 
 interface DroppableProps {
     isOver: boolean;
-    name: string;
     id: string;
     children?: React.ReactNode;
 }
@@ -26,6 +25,7 @@ const DraggableItem = ({ id, name }: DraggableProps) => {
         textAlign: "center",
         lineHeight: "100px",
         cursor: "grab",
+        marginBottom: "10px" // Added margin for spacing between draggable items
     };
 
     return (
@@ -35,7 +35,7 @@ const DraggableItem = ({ id, name }: DraggableProps) => {
     );
 };
 
-const DroppableArea = ({ name, id, isOver, children }: DroppableProps) => {
+const DroppableArea = ({ id, isOver, children }: DroppableProps) => {
     const { setNodeRef } = useDroppable({
         id,
     });
@@ -45,19 +45,24 @@ const DroppableArea = ({ name, id, isOver, children }: DroppableProps) => {
         height: 100,
         backgroundColor: isOver ? "lightcoral" : "lightgreen",
         textAlign: "center",
-        lineHeight: "200px",
+        lineHeight: "100px",
         transition: "background-color 0.2s",
         position: "relative",
     };
 
     return (
         <div ref={setNodeRef} style={style}>
-            {children || name}
+            {children || id}
         </div>
     );
 };
 
 const DragAndDrop = () => {
+    // Define droppable grid
+    const numRows = 4;
+    const numCols = 4;
+    const dropZones = Array.from({ length: numRows * numCols }, (_, i) => `drop${i + 1}`);
+
     // Track the current dropbox for each draggable item
     const [droppedItems, setDroppedItems] = useState<{ [key: string]: string | null }>({
         drag1: null,
@@ -89,29 +94,47 @@ const DragAndDrop = () => {
 
     return (
         <DndContext onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
-            <div>
-                {/* Draggable Items */}
-                {!droppedItems.drag1 && <DraggableItem id="drag1" name="squarey1" />}
-                {!droppedItems.drag2 && <DraggableItem id="drag2" name="squarey2" />}
-                {!droppedItems.drag3 && <DraggableItem id="drag3" name="squarey3" />}
-            </div>
+            <div style={{ display: "flex", height: "50vh" }}>
+                {/* Sidebar for draggable items */}
+                <div style={{
+                    width: "10vw",
+                    minWidth: "200px",
+                    padding: "20px",
+                    backgroundColor: "#2e6171",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                    borderRadius: "0px 5px 5px 0px"
+                }}>
+                    {/* Draggable Items */}
+                    {!droppedItems.drag1 && <DraggableItem id="drag1" name="squarey1" />}
+                    {!droppedItems.drag2 && <DraggableItem id="drag2" name="squarey2" />}
+                    {!droppedItems.drag3 && <DraggableItem id="drag3" name="squarey3" />}
+                </div>
 
-            <div style={{ display: "flex", justifyContent: "center", paddingTop: "50px" }}>
-                {/* Droppable Areas */}
-                <DroppableArea
-                    id="drop1"
-                    name="droppy1"
-                    isOver={overId === "drop1"}>
-                    {droppedItems.drag1 === "drop1" && <DraggableItem id="drag1" name="squarey1" />}
-                    {droppedItems.drag2 === "drop1" && <DraggableItem id="drag2" name="squarey2" />}
-                    {droppedItems.drag3 === "drop1" && <DraggableItem id="drag3" name="squarey3" />}
-                </DroppableArea>
-
-                <DroppableArea id="drop2" name="droppy2" isOver={overId === "drop2"}>
-                    {droppedItems.drag1 === "drop2" && <DraggableItem id="drag1" name="squarey1" />}
-                    {droppedItems.drag2 === "drop2" && <DraggableItem id="drag2" name="squarey2" />}
-                    {droppedItems.drag3 === "drop2" && <DraggableItem id="drag3" name="squarey3" />}
-                </DroppableArea>
+                {/* Main content area */}
+                <div style={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}>
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: `repeat(${numCols}, 1fr)`,
+                        gap: "10px",
+                    }}>
+                        {/* Droppable Areas in a Grid */}
+                        {dropZones.map((dropId) => (
+                            <DroppableArea key={dropId} id={dropId} isOver={overId === dropId}>
+                                {droppedItems.drag1 === dropId && <DraggableItem id="drag1" name="squarey1" />}
+                                {droppedItems.drag2 === dropId && <DraggableItem id="drag2" name="squarey2" />}
+                                {droppedItems.drag3 === dropId && <DraggableItem id="drag3" name="squarey3" />}
+                            </DroppableArea>
+                        ))}
+                    </div>
+                </div>
             </div>
         </DndContext>
     );
