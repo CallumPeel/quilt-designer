@@ -168,23 +168,32 @@ const DragAndDrop = () => {
         const { id } = event.active;
         const overId = event.over?.id;
 
-        const isTileOccupied = Object.values(droppedItems).some(item => item?.dropId === overId);
+        // If the item is dragged outside the grid (overId is null), remove the item
+        if (!overId) {
+            setDroppedItems((prevItems) => {
+                const newItems = { ...prevItems };
+                delete newItems[id]; // Remove the dragged item
+                return newItems;
+            });
+        } else {
+            const isTileOccupied = Object.values(droppedItems).some(item => item?.dropId === overId);
 
-        if (!isTileOccupied && overId) {
-            const draggedItem = sidebarShapes.find(item => item.id === id);
+            if (!isTileOccupied) {
+                const draggedItem = sidebarShapes.find(item => item.id === id);
 
-            if (draggedItem) {
-                const newId = `grid-item-${Date.now()}`;
-                setDroppedItems(prevItems => ({
-                    ...prevItems,
-                    [newId]: { dropId: overId, shape: draggedItem.shape },
-                }));
-            } else {
-                // If the shape is already on the grid, move it
-                setDroppedItems(prevItems => ({
-                    ...prevItems,
-                    [id]: { dropId: overId, shape: prevItems[id]?.shape || 'yellowSquare' },
-                }));
+                if (draggedItem) {
+                    const newId = `grid-item-${Date.now()}`;
+                    setDroppedItems(prevItems => ({
+                        ...prevItems,
+                        [newId]: { dropId: overId, shape: draggedItem.shape },
+                    }));
+                } else {
+                    // If the shape is already on the grid, move it
+                    setDroppedItems(prevItems => ({
+                        ...prevItems,
+                        [id]: { dropId: overId, shape: prevItems[id]?.shape || 'yellowSquare' },
+                    }));
+                }
             }
         }
     };
